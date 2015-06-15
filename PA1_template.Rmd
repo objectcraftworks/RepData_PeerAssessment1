@@ -1,8 +1,10 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
+title: 'Reproducible Research: Peer Assessment 1'
+output:
   html_document:
-    keep_md: true
+    keep_md: yes
+  pdf_document: default
+  word_document: default
 ---
 ```{r setup}
 # set global chunk options: 
@@ -10,7 +12,7 @@ library(knitr)
 opts_chunk$set(cache=FALSE, fig.align='center')
 ```
 ```{r alllibraries, echo=FALSE}
-library(lattice)
+library(ggplot2)
 ```
 
 ## Loading and preprocessing the data
@@ -89,24 +91,24 @@ c("Mean" = mean(stepsPerDay.imputes_nas$steps),"Median" = median(stepsPerDay.imp
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r}
+```{r fig.width=7, fig.height=6}
 
-activity.imputed_nas
+
 activity.imputed_nas$wday <- as.POSIXlt(activity.imputed_nas$date)$wday
 
 activity.imputed_nas$weekdayorweekend <- "weekday"
 
 # 0=sunday,6 = saturday
-activity.imputed_nas[which(activity.imputed_nas$wday ==6 | activity.imputed_nas$wday ==0),]$weekendorweekday <- "weekend"
-
-avergastepsPerInterval.weekendorweekday <- aggregate(steps ~ interval +weekdayorweekend, data=activity.imputed_nas,mean)
+activity.imputed_nas[which(activity.imputed_nas$wday ==6 | activity.imputed_nas$wday ==0),]$weekdayorweekend <- "weekend"
 
 
+activity.imputed_nas <-transform(activity.imputed_nas,weekdayorweekend=factor(weekdayorweekend) )
+avergastepsPerInterval.weekendorweekday <- aggregate(steps ~ interval + weekdayorweekend, data=activity.imputed_nas,mean)
 
-xyplot(
-  type="l",
-  data=avergastepsPerInterval.weekendorweekday, steps ~ interval | weekdayorweekend,
-  xlab="Interval", ylab="Average Number of steps",
-
-)
+qplot(interval, steps ,data=avergastepsPerInterval.weekendorweekday , 
+       geom=c("point","line") ,
+      facets= . ~ weekdayorweekend,
+     main="Average steps of all days in an interval categorized weekday or weekends",
+     xlab="Interval",
+     ylab="Average steps of all days")
 ```

@@ -1,5 +1,21 @@
 # Reproducible Research: Peer Assessment 1
 
+```r
+# set global chunk options: 
+library(knitr)
+```
+
+```
+## Warning: package 'knitr' was built under R version 3.1.3
+```
+
+```r
+opts_chunk$set(cache=FALSE, fig.align='center')
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.1.3
+```
 
 ## Loading and preprocessing the data
 Unzip the file to data folder.
@@ -20,7 +36,7 @@ stepsPerDay <- aggregate(steps ~ date, data=activity.complete_cases,sum)
 hist(stepsPerDay$steps,xlab="Total number of steps per day",main="Histogram of Total number of steps taken each day") 
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+<img src="PA1_template_files/figure-html/unnamed-chunk-2-1.png" title="" alt="" style="display: block; margin: auto;" />
 
 Mean and Median of the total number of steps taken per day
 
@@ -38,7 +54,7 @@ plot(stepsByInterval,type="l",xlab="Interval", ylab="Average Steps of All Days",
 ="Average Steps of All days by interval")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+<img src="PA1_template_files/figure-html/unnamed-chunk-4-1.png" title="" alt="" style="display: block; margin: auto;" />
 
 
 
@@ -68,7 +84,7 @@ stepsPerDay.imputes_nas <- aggregate(steps ~ date, data=activity.imputed_nas,sum
 hist(stepsPerDay.imputes_nas$steps,xlab="Total number of steps per day",main="Histogram of Total number of steps taken each day with imputed missed values") 
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
+<img src="PA1_template_files/figure-html/unnamed-chunk-7-1.png" title="" alt="" style="display: block; margin: auto;" />
 After imputing the missing values, the Mean and the Median of the total number of steps taken per day
 
 
@@ -79,22 +95,26 @@ After imputing the missing values, the Mean and the Median of the total number o
 > There is a negligible change in the median, and mean after imputing the missing values.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+
 ```r
-library(ggplot2)
 activity.imputed_nas$wday <- as.POSIXlt(activity.imputed_nas$date)$wday
 
-activity.imputed_nas$weekdayorweekend <- "Weekday"
+activity.imputed_nas$weekdayorweekend <- "weekday"
+
 # 0=sunday,6 = saturday
-activity.imputed_nas[which(activity.imputed_nas$wdat ==6 | activity.imputed_nas$wdat ==0),]$bizday <- "Weekend"
+activity.imputed_nas[which(activity.imputed_nas$wday ==6 | activity.imputed_nas$wday ==0),]$weekdayorweekend <- "weekend"
 
-avergastepsPerInterval.weekendorweekday <- aggregate(steps ~ interval +weekdayorweekend, data=activity.imputed_nas,mean)
 
-plot <- qplot(interval, steps,data=avergastepsPerInterval.weekendorweekday , 
+activity.imputed_nas <-transform(activity.imputed_nas,weekdayorweekend=factor(weekdayorweekend) )
+avergastepsPerInterval.weekendorweekday <- aggregate(steps ~ interval + weekdayorweekend, data=activity.imputed_nas,mean)
+
+qplot(interval, steps ,data=avergastepsPerInterval.weekendorweekday , 
        geom=c("point","line") ,
       facets= . ~ weekdayorweekend,
-     main="Averag steps of all days per interval averaged across all weekends and weekdays",
-     xlab="interval",
-     ylab="Average step")
-plot
-
+     main="Average steps of all days in an interval categorized weekday or weekends",
+     xlab="Interval",
+     ylab="Average steps of all days")
 ```
+
+<img src="PA1_template_files/figure-html/unnamed-chunk-9-1.png" title="" alt="" style="display: block; margin: auto;" />
